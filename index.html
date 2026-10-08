@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recursividad en algoritmos: teoría y ejemplos interactivos</title>
+<meta name="description" content="Investigación sobre recursividad: definición, procedimientos, características, complejidad y ejemplos interactivos de factorial, Fibonacci, Torres de Hanói y fractales.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F6F1;
+  --panel:#FFFFFF;
+  --ink:#16243A;
+  --muted:#55657A;
+  --cobalt:#2B59D9;
+  --mustard:#E2A72E;
+  --sage:#6E9A7F;
+  --line:#D6DDD6;
+  --code-bg:#1B2A42;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --serif:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono:"JetBrains Mono", Consolas, "Courier New", monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--serif);font-size:1.08rem;line-height:1.7;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:32px 32px;background-attachment:fixed;
+}
+a{color:var(--cobalt)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--mustard);outline-offset:2px}
+
+/* Navegación */
+.topnav{position:sticky;top:0;z-index:20;background:rgba(244,246,241,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.topnav .inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 1.25rem}
+.brand{font-family:var(--display);font-weight:800;font-size:1.05rem;white-space:nowrap;text-decoration:none;color:var(--ink);overflow:hidden;text-overflow:ellipsis}
+.brand span{display:inline-block;transform:scale(.8);opacity:.75}
+.brand span span{transform:scale(.8);opacity:.75}
+@media (max-width:520px){.brand > span{display:none}}
+.menu{position:relative}
+.menu-btn{display:flex;align-items:center;gap:.6rem;background:var(--panel);color:var(--ink);border:2px solid var(--ink);padding:.45rem .9rem}
+.menu-btn:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.menu-btn .bars{display:inline-flex;flex-direction:column;gap:3px}
+.menu-btn .bars i{display:block;width:16px;height:2px;background:currentColor;transition:transform .2s,opacity .2s}
+.menu-btn[aria-expanded="true"] .bars i:nth-child(1){transform:translateY(5px) rotate(45deg)}
+.menu-btn[aria-expanded="true"] .bars i:nth-child(2){opacity:0}
+.menu-btn[aria-expanded="true"] .bars i:nth-child(3){transform:translateY(-5px) rotate(-45deg)}
+.menu-panel{position:absolute;right:0;top:calc(100% + .5rem);width:min(320px,calc(100vw - 2.5rem));max-height:calc(100vh - 90px);overflow-y:auto;background:var(--panel);border:2px solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:.4rem 0;display:none}
+.menu-panel.open{display:block;animation:drop .16s ease-out}
+@keyframes drop{from{opacity:0;transform:translateY(-6px)}}
+@media (prefers-reduced-motion: reduce){.menu-panel.open{animation:none}.menu-btn .bars i{transition:none}}
+.menu-group{font-family:var(--display);font-size:.8rem;color:var(--muted);padding:.6rem 1.1rem .2rem;border-top:1px solid var(--line);margin-top:.3rem}
+.menu-group:first-child{border-top:0;margin-top:0}
+.menu-panel a{display:grid;grid-template-columns:1.8rem 1fr;align-items:baseline;padding:.45rem 1.1rem;font-family:var(--display);font-size:.98rem;color:var(--ink);text-decoration:none}
+.menu-panel a span{color:var(--cobalt);font-weight:800}
+.menu-panel a:hover,.menu-panel a:focus-visible{background:#E3EAFB;outline:none}
+.menu-panel a.current{background:var(--paper);box-shadow:inset 4px 0 0 var(--mustard)}
+
+/* Portada */
+.hero{max-width:1180px;margin:0 auto;padding:4.5rem 1.25rem 3rem;display:grid;grid-template-columns:1.15fr 1fr;gap:3rem;align-items:center}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,6vw,4.6rem);line-height:1;letter-spacing:-.02em;margin:0 0 1.4rem}
+.hero h1 .echo{display:block;font-size:.62em;color:var(--muted);font-weight:600;line-height:1.08;margin-top:.25em}
+.hero h1 .echo .echo{font-size:.62em;opacity:.8}
+.hero h1 .echo .echo .echo{opacity:.7}
+.hero p.lead{font-size:1.2rem;max-width:34em;margin:0 0 1.5rem}
+.hero .quote{font-style:italic;color:var(--muted);border-left:3px solid var(--mustard);padding-left:1rem;max-width:32em}
+.hero-figure{margin:0;background:var(--panel);border:1px solid var(--ink);padding:1rem}
+.hero-figure svg{width:100%;height:auto;display:block}
+.hero-figure figcaption{font-size:.9rem;color:var(--muted);margin-top:.6rem;line-height:1.5}
+.sq{fill:none;stroke:var(--ink);stroke-width:1;opacity:0;animation:appear .35s ease-out forwards}
+.sq.fill{fill:var(--mustard);fill-opacity:.55}
+.sq.blue{stroke:var(--cobalt);stroke-width:1.6}
+@keyframes appear{to{opacity:1}}
+@media (prefers-reduced-motion: reduce){.sq{animation:none;opacity:1}}
+
+/* Estructura de secciones */
+main{max-width:1180px;margin:0 auto;padding:0 1.25rem 4rem}
+section.chapter{background:var(--panel);border:1px solid var(--line);margin:2.5rem 0;padding:2.6rem clamp(1.2rem,4vw,3.4rem)}
+.chapter-head{display:flex;align-items:baseline;gap:1rem;margin-bottom:1.2rem;border-bottom:2px solid var(--ink);padding-bottom:.6rem}
+.chapter-head .num{font-family:var(--display);font-weight:800;font-size:2.6rem;color:var(--cobalt);line-height:1}
+.chapter-head h2{font-family:var(--display);font-weight:800;font-size:clamp(1.6rem,3vw,2.2rem);margin:0;line-height:1.15}
+h3{font-family:var(--display);font-weight:600;font-size:1.3rem;margin:2rem 0 .6rem}
+.prose{max-width:70ch}
+.prose p{margin:0 0 1rem}
+.prose ul,.prose ol{padding-left:1.3rem;margin:0 0 1rem}
+.prose li{margin-bottom:.4rem}
+.cite{font-family:var(--display);font-size:.85em;color:var(--cobalt);text-decoration:none;font-weight:600}
+.def{border:2px solid var(--ink);background:var(--paper);padding:1.2rem 1.4rem;margin:1.4rem 0;max-width:70ch;font-size:1.15rem}
+.def strong{font-family:var(--display)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+figure.illus{margin:1.2rem 0;border:1px solid var(--line);padding:1rem;background:var(--paper)}
+figure.illus svg{width:100%;height:auto;display:block}
+figure.illus figcaption{font-size:.88rem;color:var(--muted);margin-top:.5rem;line-height:1.5}
+table{border-collapse:collapse;width:100%;font-size:.98rem;margin:1rem 0}
+th,td{border-bottom:1px solid var(--line);padding:.55rem .6rem;text-align:left;vertical-align:top}
+th{font-family:var(--display);font-weight:600;border-bottom:2px solid var(--ink)}
+.table-wrap{overflow-x:auto}
+code,pre{font-family:var(--mono);font-size:.88rem}
+:not(pre)>code{background:#E8ECEF;padding:.1em .35em;border-radius:3px}
+pre{background:var(--code-bg);color:#E6EDF6;padding:1rem 1.2rem;overflow-x:auto;line-height:1.55;margin:1rem 0;border-left:4px solid var(--mustard)}
+pre .k{color:#8FB4FF}
+pre .c{color:#8A9BB3;font-style:italic}
+pre .n{color:#F2C46B}
+.math{font-family:var(--mono);font-size:.95rem;background:var(--paper);border:1px dashed var(--muted);padding:.6rem 1rem;display:inline-block;margin:.3rem 0 1rem}
+
+/* Laboratorios interactivos */
+.lab{border:2px solid var(--ink);margin:1.8rem 0 .5rem;background:var(--paper)}
+.lab-bar{display:flex;flex-wrap:wrap;gap:.8rem 1.2rem;align-items:center;padding:.9rem 1rem;border-bottom:2px solid var(--ink);background:#E9EDE6}
+.lab-bar label{font-family:var(--display);font-size:.92rem;display:flex;align-items:center;gap:.45rem}
+.lab-bar input[type=number]{width:4.2rem}
+input[type=number],select{font-family:var(--mono);font-size:.95rem;padding:.3rem .4rem;border:1px solid var(--ink);background:#fff;color:var(--ink)}
+input[type=range]{accent-color:var(--cobalt)}
+button{font-family:var(--display);font-weight:600;font-size:.92rem;padding:.45rem .95rem;border:2px solid var(--ink);background:var(--ink);color:#fff;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink)}
+button:hover{background:var(--cobalt);border-color:var(--cobalt);color:#fff}
+button:disabled{opacity:.45;cursor:not-allowed}
+.lab-body{padding:1rem}
+.stats{display:flex;flex-wrap:wrap;gap:1.6rem;padding:.8rem 1rem;border-top:1px solid var(--line);font-family:var(--display);font-size:.95rem}
+.stats b{font-size:1.25rem;color:var(--cobalt)}
+.note{font-size:.92rem;color:var(--muted)}
+
+/* Factorial */
+.fact-grid{display:grid;grid-template-columns:minmax(220px,320px) 1fr;gap:1rem}
+.stack-box{border:1px solid var(--ink);background:#fff;min-height:320px;padding:.6rem;display:flex;flex-direction:column;gap:.35rem}
+.stack-box .label{font-family:var(--display);font-size:.8rem;color:var(--muted);text-align:center;border-bottom:1px dashed var(--line);padding-bottom:.3rem}
+.frame{font-family:var(--mono);font-size:.9rem;display:flex;justify-content:space-between;padding:.45rem .7rem;background:#E3EAFB;border-left:4px solid var(--cobalt);animation:push .25s ease-out}
+.frame.base{background:#FBEFD3;border-left-color:var(--mustard)}
+.frame.done{background:#DCEBE1;border-left-color:var(--sage)}
+@keyframes push{from{transform:translateY(-8px);opacity:0}}
+@media (prefers-reduced-motion: reduce){.frame{animation:none}}
+.log{font-family:var(--mono);font-size:.84rem;background:var(--code-bg);color:#DCE6F5;padding:.8rem 1rem;min-height:320px;max-height:320px;overflow-y:auto;white-space:pre-wrap;margin:0}
+.result{font-family:var(--display);font-weight:800;font-size:1.5rem;padding:.6rem 1rem;word-break:break-all}
+
+/* Fibonacci */
+.fib-svg-wrap{overflow-x:auto;background:#fff;border:1px solid var(--line)}
+#fib-svg{display:block;width:100%;height:auto;margin:0 auto}
+.fnode rect{fill:#fff;stroke:var(--ink);stroke-width:1.5}
+.fnode text{font-family:var(--mono);font-size:12px;fill:var(--ink);text-anchor:middle}
+.fnode .val{font-family:var(--display);font-weight:800;font-size:12px;fill:var(--cobalt)}
+.fnode.active rect{fill:#E3EAFB;stroke:var(--cobalt);stroke-width:2.5}
+.fnode.done rect{fill:#DCEBE1}
+.fnode.hit rect{fill:#FBEFD3;stroke:var(--mustard)}
+.fnode.dup rect{stroke:#C0392B;stroke-dasharray:3 2}
+.fedge{stroke:var(--muted);stroke-width:1.2}
+.legend{display:flex;flex-wrap:wrap;gap:1rem;font-family:var(--display);font-size:.85rem;color:var(--muted);padding:.6rem 1rem 0}
+.legend i{display:inline-block;width:14px;height:14px;border:1.5px solid var(--ink);vertical-align:-2px;margin-right:.3rem}
+
+/* Canvas */
+canvas{display:block;width:100%;background:#fff;border:1px solid var(--line)}
+#hanoi-canvas{height:300px}
+#fractal-canvas{height:460px}
+#growth-canvas{height:340px}
+.moves{font-family:var(--mono);font-size:.85rem;color:var(--muted);padding:0 1rem .8rem;min-height:1.6em}
+
+/* Referencias */
+.refs{list-style:none;padding:0;margin:0;max-width:80ch}
+.refs li{display:grid;grid-template-columns:3rem 1fr;padding:.55rem 0;border-bottom:1px solid var(--line);font-size:.98rem;line-height:1.55;word-break:break-word}
+.refs li span:first-child{font-family:var(--display);font-weight:600;color:var(--cobalt)}
+.sources{max-width:80ch}
+.sources dt{font-family:var(--display);font-weight:600;margin-top:1rem}
+.sources dd{margin:.2rem 0 0 0;color:var(--muted);font-size:.98rem}
+
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;padding-top:2.5rem}
+  .two,.fact-grid{grid-template-columns:1fr}
+  #fractal-canvas{height:360px}
+}
+</style>
+</head>
+<body>
+
+<header class="topnav">
+  <div class="inner">
+    <a class="brand" href="#inicio">Recursividad <span>recursividad <span>recursividad</span></span></a>
+    <div class="menu">
+      <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="menu-panel">
+        <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span> Secciones
+      </button>
+      <nav class="menu-panel" id="menu-panel" aria-label="Secciones">
+        <div class="menu-group">Investigación</div>
+        <a href="#definicion"><span>1</span>Definición</a>
+        <a href="#procedimientos"><span>2</span>Procedimientos y aplicaciones</a>
+        <a href="#caracteristicas"><span>3</span>Características</a>
+        <a href="#complejidad"><span>4</span>Complejidad computacional</a>
+        <div class="menu-group">Ejemplos interactivos</div>
+        <a href="#factorial"><span>5</span>Factorial</a>
+        <a href="#fibonacci"><span>6</span>Fibonacci</a>
+        <a href="#hanoi"><span>7</span>Torres de Hanói</a>
+        <a href="#fractales"><span>8</span>Fractales</a>
+        <div class="menu-group">Cierre</div>
+        <a href="#conclusion"><span>9</span>Conclusión</a>
+        <a href="#referencias"><span>10</span>Referencias IEEE</a>
+        <a href="#fuentes"><span>11</span>Fuentes consultadas</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- PORTADA -->
+<div class="hero" id="inicio">
+  <div>
+    <h1>Recursividad en algoritmos
+      <span class="echo">un problema dentro de sí mismo
+        <span class="echo">un problema dentro de sí mismo
+          <span class="echo">un problema dentro de sí mismo</span>
+        </span>
+      </span>
+    </h1>
+    <p class="lead">Una función recursiva resuelve un problema grande pidiéndose ayuda a sí misma con una versión más pequeña del mismo problema, hasta llegar a un caso tan simple que la respuesta es inmediata.</p>
+    <p class="quote">Esta página reúne una investigación documental sobre la recursividad y cuatro laboratorios interactivos: factorial, Fibonacci, Torres de Hanói y fractales. Cada ejemplo puede ejecutarse paso a paso para observar cómo se apilan y resuelven las llamadas.</p>
+  </div>
+  <figure class="hero-figure">
+    <svg id="hero-art" viewBox="0 0 400 400" role="img" aria-label="Cuadrados anidados: cada cuadrado se dibuja dentro del anterior, ligeramente girado"></svg>
+    <figcaption>Cada cuadrado se obtiene del anterior con la misma regla: tomar un punto al 10 % de cada lado. La figura completa es una sola función que se llama a sí misma 34 veces.</figcaption>
+  </figure>
+</div>
+
+<main>
+
+<!-- 1. DEFINICIÓN -->
+<section class="chapter" id="definicion">
+  <div class="chapter-head"><span class="num">1</span><h2>Definición de recursividad</h2></div>
+  <div class="two">
+    <div class="prose">
+      <p>En ciencias de la computación, la <strong>recursividad</strong> es la técnica en la que un procedimiento se define en términos de sí mismo. Un algoritmo es recursivo cuando, para resolver un problema, se invoca a sí mismo una o más veces con subproblemas estrictamente más pequeños, y combina sus resultados para obtener la solución completa <a class="cite" href="#ref1">[1]</a>, <a class="cite" href="#ref6">[6]</a>.</p>
+      <p>La idea proviene de las definiciones matemáticas por inducción. El factorial, por ejemplo, se define como <code>0! = 1</code> y <code>n! = n · (n−1)!</code>: la segunda regla usa el propio concepto que está definiendo, pero aplicado a un número menor <a class="cite" href="#ref3">[3]</a>.</p>
+      <p>Para que una definición recursiva sea válida no basta con que se refiera a sí misma: cada llamada debe acercarse a un <em>caso base</em> que se resuelve sin más llamadas. Sin ese caso, la función se invocaría indefinidamente <a class="cite" href="#ref4">[4]</a>.</p>
+    </div>
+    <div>
+      <div class="def"><strong>Recursividad:</strong> estrategia de solución en la que un problema se expresa como una o varias instancias más pequeñas del mismo problema, más un caso base que se resuelve directamente.</div>
+      <figure class="illus">
+        <svg viewBox="0 0 420 200" role="img" aria-label="Esquema: problema de tamaño n se divide en problema de tamaño n menos 1, hasta el caso base">
+          <g font-family="Bricolage Grotesque, sans-serif" font-size="14">
+            <rect x="10" y="20" width="400" height="160" fill="#fff" stroke="#16243A" stroke-width="2"/>
+            <text x="22" y="42" fill="#16243A">resolver(n)</text>
+            <rect x="40" y="55" width="350" height="115" fill="#E3EAFB" stroke="#2B59D9" stroke-width="1.5"/>
+            <text x="52" y="76" fill="#16243A">resolver(n − 1)</text>
+            <rect x="70" y="88" width="300" height="72" fill="#fff" stroke="#16243A" stroke-width="1.2"/>
+            <text x="82" y="108" fill="#16243A">resolver(n − 2)</text>
+            <rect x="100" y="118" width="250" height="34" fill="#FBEFD3" stroke="#E2A72E" stroke-width="1.5"/>
+            <text x="112" y="140" fill="#16243A">… caso base: respuesta directa</text>
+          </g>
+        </svg>
+        <figcaption>Cada nivel contiene una copia más pequeña del mismo problema. La recursión termina en el caso base, que no se subdivide.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 2. PROCEDIMIENTOS -->
+<section class="chapter" id="procedimientos">
+  <div class="chapter-head"><span class="num">2</span><h2>Procedimientos recursivos y sus aplicaciones</h2></div>
+  <div class="prose">
+    <p>Abelson y Sussman distinguen entre el <em>procedimiento</em> (el texto del programa) y el <em>proceso</em> que genera al ejecutarse. Un procedimiento recursivo puede producir procesos con formas muy distintas, y esa forma determina cuánto tiempo y memoria consume <a class="cite" href="#ref2">[2]</a>. Los tipos más comunes son:</p>
+  </div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Tipo</th><th>Cómo se comporta</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td>Recursión lineal (simple)</td><td>Cada llamada hace como máximo una llamada recursiva. Las llamadas forman una cadena que se resuelve al regresar.</td><td>Factorial, suma de una lista, búsqueda binaria</td></tr>
+      <tr><td>Recursión en árbol (múltiple)</td><td>Cada llamada hace dos o más llamadas. El número de llamadas puede crecer exponencialmente.</td><td>Fibonacci ingenuo, Torres de Hanói, fractales</td></tr>
+      <tr><td>Recursión de cola</td><td>La llamada recursiva es la última operación. Algunos compiladores la convierten en un ciclo y no consume pila adicional <a class="cite" href="#ref2">[2]</a>.</td><td>Factorial con acumulador, máximo común divisor de Euclides</td></tr>
+      <tr><td>Recursión indirecta (mutua)</td><td>A llama a B y B llama a A.</td><td><code>esPar(n)</code> / <code>esImpar(n)</code>, analizadores sintácticos descendentes</td></tr>
+      <tr><td>Divide y vencerás</td><td>Divide el problema en partes independientes, resuelve cada una recursivamente y combina los resultados <a class="cite" href="#ref1">[1]</a>.</td><td>Merge sort, quicksort, multiplicación de Karatsuba</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="prose">
+    <h3>Aplicaciones</h3>
+    <p>La recursividad es la forma natural de trabajar con estructuras que se contienen a sí mismas. Entre sus aplicaciones principales están:</p>
+    <ul>
+      <li><strong>Recorrido de estructuras jerárquicas:</strong> árboles binarios, el sistema de archivos (carpetas dentro de carpetas), el DOM de una página web y documentos JSON o XML.</li>
+      <li><strong>Ordenamiento y búsqueda:</strong> merge sort y quicksort dividen el arreglo y se aplican a cada mitad; la búsqueda binaria descarta la mitad del rango en cada llamada <a class="cite" href="#ref1">[1]</a>, <a class="cite" href="#ref7">[7]</a>.</li>
+      <li><strong>Búsqueda con retroceso (backtracking):</strong> resolver sudokus, el problema de las ocho reinas o laberintos, probando una opción y regresando si no funciona.</li>
+      <li><strong>Grafos:</strong> la búsqueda en profundidad (DFS) visita un nodo y luego, recursivamente, a sus vecinos.</li>
+      <li><strong>Compiladores e intérpretes:</strong> las gramáticas de los lenguajes son recursivas (una expresión puede contener otras expresiones), por lo que se analizan con funciones recursivas.</li>
+      <li><strong>Gráficos y modelado de la naturaleza:</strong> fractales, árboles, costas y nubes se generan repitiendo una regla a distintas escalas <a class="cite" href="#ref5">[5]</a>.</li>
+      <li><strong>Programación dinámica:</strong> se parte de una definición recursiva y se guardan los resultados de subproblemas repetidos para no recalcularlos <a class="cite" href="#ref1">[1]</a>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 3. CARACTERÍSTICAS -->
+<section class="chapter" id="caracteristicas">
+  <div class="chapter-head"><span class="num">3</span><h2>Características de la recursividad</h2></div>
+  <div class="two">
+    <div class="prose">
+      <p>Todo algoritmo recursivo bien construido comparte estas propiedades <a class="cite" href="#ref4">[4]</a>, <a class="cite" href="#ref6">[6]</a>, <a class="cite" href="#ref8">[8]</a>:</p>
+      <ol>
+        <li><strong>Caso base.</strong> Al menos una entrada se resuelve sin llamadas recursivas. Es la condición de paro.</li>
+        <li><strong>Caso recursivo.</strong> La función se llama a sí misma con una entrada distinta.</li>
+        <li><strong>Convergencia.</strong> Cada llamada recursiva debe acercarse al caso base (por ejemplo, <code>n</code> disminuye en 1 o el arreglo se reduce a la mitad). Si no converge, el programa nunca termina.</li>
+        <li><strong>Uso de la pila de llamadas.</strong> Cada llamada pendiente ocupa un <em>marco</em> en la pila con sus parámetros y variables locales. Si la recursión es demasiado profunda se produce un desbordamiento de pila (<em>stack overflow</em>).</li>
+        <li><strong>Dos fases.</strong> En la fase de ida (descenso) se apilan llamadas; en la fase de regreso (ascenso) se combinan los resultados.</li>
+        <li><strong>Equivalencia con la iteración.</strong> Todo algoritmo recursivo puede reescribirse con ciclos y una pila explícita. La versión recursiva suele ser más clara; la iterativa, a veces más eficiente en memoria <a class="cite" href="#ref2">[2]</a>.</li>
+      </ol>
+    </div>
+    <figure class="illus">
+      <svg viewBox="0 0 360 330" role="img" aria-label="Pila de llamadas de factorial de 4: se apilan las llamadas hasta factorial de 1 y luego regresan los valores">
+        <g font-family="JetBrains Mono, monospace" font-size="13">
+          <text x="10" y="20" font-family="Bricolage Grotesque, sans-serif" font-size="14" fill="#55657A">Ida: se apilan llamadas</text>
+          <rect x="10" y="240" width="200" height="40" fill="#E3EAFB" stroke="#2B59D9"/><text x="22" y="265">factorial(4)</text>
+          <rect x="10" y="195" width="200" height="40" fill="#E3EAFB" stroke="#2B59D9"/><text x="22" y="220">factorial(3)</text>
+          <rect x="10" y="150" width="200" height="40" fill="#E3EAFB" stroke="#2B59D9"/><text x="22" y="175">factorial(2)</text>
+          <rect x="10" y="105" width="200" height="40" fill="#FBEFD3" stroke="#E2A72E"/><text x="22" y="130">factorial(1) → 1</text>
+          <g fill="#6E9A7F" font-size="12">
+            <text x="225" y="130">devuelve 1</text>
+            <text x="225" y="175">2 × 1 = 2</text>
+            <text x="225" y="220">3 × 2 = 6</text>
+            <text x="225" y="265">4 × 6 = 24</text>
+          </g>
+          <path d="M300 140 V 250" stroke="#6E9A7F" stroke-width="2" fill="none" marker-end="url(#ah)"/>
+          <defs><marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#6E9A7F"/></marker></defs>
+          <text x="10" y="310" font-family="Bricolage Grotesque, sans-serif" font-size="14" fill="#55657A">Regreso: se combinan los resultados</text>
+        </g>
+      </svg>
+      <figcaption>Pila de llamadas de <code>factorial(4)</code>. El caso base (amarillo) detiene el descenso; después cada marco multiplica y se retira de la pila.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 4. COMPLEJIDAD -->
+<section class="chapter" id="complejidad">
+  <div class="chapter-head"><span class="num">4</span><h2>Complejidad computacional en algoritmos recursivos</h2></div>
+  <div class="prose">
+    <p>El costo de un algoritmo recursivo se describe con una <strong>relación de recurrencia</strong>: una ecuación que expresa el tiempo <code>T(n)</code> en función del tiempo de las llamadas más pequeñas <a class="cite" href="#ref1">[1]</a>, <a class="cite" href="#ref3">[3]</a>. Por ejemplo, para el factorial:</p>
+    <div class="math">T(n) = T(n − 1) + c,  T(1) = c   ⇒   T(n) = Θ(n)</div>
+    <p>Existen tres métodos clásicos para resolver recurrencias <a class="cite" href="#ref1">[1]</a>, <a class="cite" href="#ref7">[7]</a>:</p>
+    <ul>
+      <li><strong>Sustitución:</strong> se propone una solución y se demuestra por inducción.</li>
+      <li><strong>Árbol de recursión:</strong> se dibuja el árbol de llamadas, se suma el trabajo de cada nivel y luego el de todos los niveles.</li>
+      <li><strong>Teorema maestro:</strong> resuelve directamente recurrencias de la forma <code>T(n) = a·T(n/b) + f(n)</code>, típicas de divide y vencerás. Para merge sort, <code>T(n) = 2T(n/2) + Θ(n)</code> da <code>Θ(n log n)</code>.</li>
+    </ul>
+    <p>La complejidad espacial también importa: la memoria extra que usa la pila es proporcional a la <strong>profundidad máxima</strong> de la recursión, no al número total de llamadas. Fibonacci ingenuo hace un número exponencial de llamadas, pero su pila nunca pasa de <code>n</code> marcos <a class="cite" href="#ref2">[2]</a>.</p>
+  </div>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Algoritmo</th><th>Recurrencia</th><th>Tiempo</th><th>Espacio (pila)</th></tr></thead>
+    <tbody>
+      <tr><td>Factorial</td><td><code>T(n) = T(n−1) + c</code></td><td>Θ(n)</td><td>Θ(n)</td></tr>
+      <tr><td>Fibonacci ingenuo</td><td><code>T(n) = T(n−1) + T(n−2) + c</code></td><td>Θ(φⁿ) ≈ Θ(1.618ⁿ)</td><td>Θ(n)</td></tr>
+      <tr><td>Fibonacci con memorización</td><td>cada <code>F(k)</code> se calcula una vez</td><td>Θ(n)</td><td>Θ(n)</td></tr>
+      <tr><td>Torres de Hanói</td><td><code>T(n) = 2T(n−1) + 1</code></td><td>Θ(2ⁿ), exactamente 2ⁿ − 1 movimientos</td><td>Θ(n)</td></tr>
+      <tr><td>Búsqueda binaria</td><td><code>T(n) = T(n/2) + c</code></td><td>Θ(log n)</td><td>Θ(log n)</td></tr>
+      <tr><td>Merge sort</td><td><code>T(n) = 2T(n/2) + cn</code></td><td>Θ(n log n)</td><td>Θ(n)</td></tr>
+      <tr><td>Fractal con k ramas por nivel</td><td><code>T(d) = k·T(d−1) + c</code></td><td>Θ(kᵈ)</td><td>Θ(d)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Comparación medida: número de llamadas</h3>
+  <div class="prose"><p>La gráfica cuenta las llamadas reales que hace cada algoritmo de esta página para valores de <code>n</code> entre 1 y 25. El eje vertical es logarítmico: una recta inclinada significa crecimiento exponencial.</p></div>
+  <div class="lab">
+    <div class="lab-body"><canvas id="growth-canvas" aria-label="Gráfica logarítmica de número de llamadas por algoritmo"></canvas></div>
+    <div class="legend" id="growth-legend"></div>
+    <div class="stats" id="growth-stats"></div>
+  </div>
+</section>
+
+<!-- 5. FACTORIAL -->
+<section class="chapter" id="factorial">
+  <div class="chapter-head"><span class="num">5</span><h2>Factorial</h2></div>
+  <div class="two">
+    <div class="prose">
+      <p>El factorial de un número natural <code>n</code> es el producto de todos los enteros de 1 a <code>n</code>. Su definición recursiva es el ejemplo más sencillo de recursión lineal <a class="cite" href="#ref4">[4]</a>, <a class="cite" href="#ref6">[6]</a>:</p>
+      <div class="math">n! = 1 si n ≤ 1;   n! = n × (n − 1)! si n &gt; 1</div>
+      <p>Cada llamada espera el resultado de la siguiente, así que se forma una pila de <code>n</code> llamadas pendientes. Al alcanzar el caso base las multiplicaciones se resuelven de regreso.</p>
+    </div>
+<pre><span class="k">function</span> factorial(n) {
+  <span class="k">if</span> (n &lt;= <span class="n">1</span>) <span class="k">return</span> <span class="n">1</span>;        <span class="c">// caso base</span>
+  <span class="k">return</span> n * factorial(n - <span class="n">1</span>); <span class="c">// caso recursivo</span>
+}</pre>
+  </div>
+  <div class="lab" aria-label="Laboratorio de factorial">
+    <div class="lab-bar">
+      <label for="fact-n">n = <input type="number" id="fact-n" min="0" max="20" value="5"></label>
+      <label for="fact-speed">Velocidad <input type="range" id="fact-speed" min="100" max="1200" value="650" step="50"></label>
+      <button id="fact-run">Ejecutar paso a paso</button>
+      <button id="fact-stop" class="ghost" disabled>Detener</button>
+    </div>
+    <div class="lab-body fact-grid">
+      <div class="stack-box" id="fact-stack" aria-live="polite"><div class="label">Pila de llamadas (la más reciente arriba)</div></div>
+      <pre class="log" id="fact-log" aria-live="polite">Elige n y pulsa «Ejecutar paso a paso».</pre>
+    </div>
+    <div class="result" id="fact-result"></div>
+    <div class="stats"><span>Llamadas: <b id="fact-calls">0</b></span><span>Profundidad máxima de la pila: <b id="fact-depth">0</b></span></div>
+  </div>
+  <p class="note">Valores permitidos: 0 a 20. Se usa aritmética de enteros grandes (BigInt) para que 20! = 2 432 902 008 176 640 000 se muestre exacto.</p>
+</section>
+
+<!-- 6. FIBONACCI -->
+<section class="chapter" id="fibonacci">
+  <div class="chapter-head"><span class="num">6</span><h2>Sucesión de Fibonacci</h2></div>
+  <div class="two">
+    <div class="prose">
+      <p>La sucesión de Fibonacci comienza con 0 y 1, y cada término es la suma de los dos anteriores: 0, 1, 1, 2, 3, 5, 8, 13… Su definición recursiva genera una <strong>recursión en árbol</strong>, porque cada llamada produce dos más <a class="cite" href="#ref2">[2]</a>, <a class="cite" href="#ref3">[3]</a>.</p>
+      <p>El problema es que los subproblemas se repiten: para calcular <code>F(5)</code> se calcula <code>F(3)</code> dos veces y <code>F(2)</code> tres veces. Por eso el número de llamadas crece como φⁿ. Con <strong>memorización</strong> (guardar cada resultado la primera vez) el árbol se reduce a una cadena y el costo baja a lineal <a class="cite" href="#ref1">[1]</a>.</p>
+    </div>
+<pre><span class="k">function</span> fib(n) {
+  <span class="k">if</span> (n &lt; <span class="n">2</span>) <span class="k">return</span> n;            <span class="c">// casos base</span>
+  <span class="k">return</span> fib(n - <span class="n">1</span>) + fib(n - <span class="n">2</span>);
+}
+
+<span class="c">// Con memorización</span>
+<span class="k">function</span> fibMemo(n, memo = {}) {
+  <span class="k">if</span> (n <span class="k">in</span> memo) <span class="k">return</span> memo[n];
+  <span class="k">if</span> (n &lt; <span class="n">2</span>) <span class="k">return</span> n;
+  <span class="k">return</span> memo[n] = fibMemo(n-<span class="n">1</span>, memo)
+                 + fibMemo(n-<span class="n">2</span>, memo);
+}</pre>
+  </div>
+  <div class="lab" aria-label="Laboratorio de Fibonacci">
+    <div class="lab-bar">
+      <label for="fib-n">n = <input type="number" id="fib-n" min="1" max="8" value="5"></label>
+      <label><input type="checkbox" id="fib-memo"> Usar memorización</label>
+      <button id="fib-run">Animar árbol de llamadas</button>
+      <button id="fib-instant" class="ghost">Mostrar completo</button>
+    </div>
+    <div class="legend">
+      <span><i style="background:#E3EAFB;border-color:#2B59D9"></i>Llamada activa</span>
+      <span><i style="background:#DCEBE1"></i>Resuelta</span>
+      <span><i style="border-color:#C0392B;border-style:dashed"></i>Subproblema repetido</span>
+      <span><i style="background:#FBEFD3;border-color:#E2A72E"></i>Tomado de la memoria</span>
+    </div>
+    <div class="lab-body"><div class="fib-svg-wrap"><svg id="fib-svg" role="img" aria-label="Árbol de llamadas de Fibonacci"></svg></div></div>
+    <div class="stats">
+      <span>Resultado: <b id="fib-result">–</b></span>
+      <span>Llamadas: <b id="fib-calls">0</b></span>
+      <span>Llamadas repetidas: <b id="fib-dups">0</b></span>
+    </div>
+  </div>
+  <p class="note">El árbol se limita a n = 8 para que sea legible. La gráfica de la sección 4 muestra el número de llamadas para valores mayores.</p>
+</section>
+
+<!-- 7. HANÓI -->
+<section class="chapter" id="hanoi">
+  <div class="chapter-head"><span class="num">7</span><h2>Torres de Hanói</h2></div>
+  <div class="two">
+    <div class="prose">
+      <p>El rompecabezas, propuesto por Édouard Lucas en 1883, consiste en mover una torre de <code>n</code> discos de la varilla A a la C, usando B como auxiliar, sin colocar nunca un disco grande sobre uno pequeño <a class="cite" href="#ref3">[3]</a>.</p>
+      <p>La solución recursiva tiene tres pasos: mover los <code>n − 1</code> discos superiores a la varilla auxiliar, mover el disco mayor a su destino y volver a mover los <code>n − 1</code> discos encima de él. De ahí sale la recurrencia <code>T(n) = 2T(n − 1) + 1</code>, cuya solución es <code>2ⁿ − 1</code> movimientos, y se demuestra que no existe una solución más corta <a class="cite" href="#ref3">[3]</a>, <a class="cite" href="#ref4">[4]</a>.</p>
+    </div>
+<pre><span class="k">function</span> hanoi(n, origen, destino, auxiliar) {
+  <span class="k">if</span> (n === <span class="n">0</span>) <span class="k">return</span>;               <span class="c">// caso base</span>
+  hanoi(n - <span class="n">1</span>, origen, auxiliar, destino);
+  mover(n, origen, destino);
+  hanoi(n - <span class="n">1</span>, auxiliar, destino, origen);
+}</pre>
+  </div>
+  <div class="lab" aria-label="Laboratorio de Torres de Hanói">
+    <div class="lab-bar">
+      <label for="hanoi-n">Discos
+        <select id="hanoi-n"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select>
+      </label>
+      <label for="hanoi-speed">Velocidad <input type="range" id="hanoi-speed" min="1" max="10" value="5"></label>
+      <button id="hanoi-play">Reproducir</button>
+      <button id="hanoi-step" class="ghost">Un movimiento</button>
+      <button id="hanoi-reset" class="ghost">Reiniciar</button>
+    </div>
+    <div class="lab-body"><canvas id="hanoi-canvas" aria-label="Animación de las Torres de Hanói"></canvas></div>
+    <div class="moves" id="hanoi-last" aria-live="polite"></div>
+    <div class="stats">
+      <span>Movimiento: <b id="hanoi-count">0</b> de <b id="hanoi-total">7</b></span>
+      <span>Fórmula: 2<sup id="hanoi-exp">3</sup> − 1 = <b id="hanoi-formula">7</b></span>
+    </div>
+  </div>
+</section>
+
+<!-- 8. FRACTALES -->
+<section class="chapter" id="fractales">
+  <div class="chapter-head"><span class="num">8</span><h2>Fractales</h2></div>
+  <div class="two">
+    <div class="prose">
+      <p>Un fractal es una figura <strong>autosemejante</strong>: cada parte se parece a la figura completa. Benoît Mandelbrot acuñó el término en 1975 y mostró que muchas formas naturales, como costas, helechos y ramas, siguen este patrón <a class="cite" href="#ref5">[5]</a>.</p>
+      <p>Los fractales se dibujan de forma natural con recursión: la función dibuja una pieza y se llama a sí misma para dibujar copias más pequeñas. El parámetro <em>profundidad</em> es el caso base: cuando llega a 0, se dibuja la forma simple y se detiene <a class="cite" href="#ref4">[4]</a>, <a class="cite" href="#ref6">[6]</a>.</p>
+      <ul>
+        <li><strong>Árbol fractal:</strong> un tronco que se divide en dos ramas más cortas, cada una de las cuales es un árbol.</li>
+        <li><strong>Triángulo de Sierpinski:</strong> un triángulo dividido en cuatro; se quita el central y se repite en los otros tres.</li>
+        <li><strong>Copo de nieve de Koch:</strong> cada segmento se reemplaza por cuatro segmentos de un tercio de su longitud, con un pico en medio.</li>
+      </ul>
+    </div>
+<pre><span class="k">function</span> rama(x, y, largo, angulo, prof) {
+  <span class="k">if</span> (prof === <span class="n">0</span>) <span class="k">return</span>;            <span class="c">// caso base</span>
+  <span class="k">const</span> x2 = x + largo * Math.cos(angulo);
+  <span class="k">const</span> y2 = y - largo * Math.sin(angulo);
+  linea(x, y, x2, y2);
+  rama(x2, y2, largo * <span class="n">0.72</span>, angulo + abertura, prof - <span class="n">1</span>);
+  rama(x2, y2, largo * <span class="n">0.72</span>, angulo - abertura, prof - <span class="n">1</span>);
+}</pre>
+  </div>
+  <div class="lab" aria-label="Laboratorio de fractales">
+    <div class="lab-bar">
+      <label for="fr-type">Fractal
+        <select id="fr-type">
+          <option value="tree">Árbol fractal</option>
+          <option value="sierpinski">Triángulo de Sierpinski</option>
+          <option value="koch">Copo de nieve de Koch</option>
+        </select>
+      </label>
+      <label for="fr-depth">Profundidad <input type="range" id="fr-depth" min="0" max="11" value="8"> <span id="fr-depth-val">8</span></label>
+      <label for="fr-angle" id="fr-angle-wrap">Abertura <input type="range" id="fr-angle" min="5" max="90" value="25"> <span id="fr-angle-val">25°</span></label>
+      <button id="fr-grow" class="ghost">Ver crecimiento</button>
+    </div>
+    <div class="lab-body"><canvas id="fractal-canvas" aria-label="Fractal dibujado recursivamente"></canvas></div>
+    <div class="stats"><span>Elementos dibujados: <b id="fr-count">0</b></span><span>Llamadas recursivas: <b id="fr-calls">0</b></span></div>
+  </div>
+</section>
+
+<!-- 9. CONCLUSIÓN -->
+<section class="chapter" id="conclusion">
+  <div class="chapter-head"><span class="num">9</span><h2>Conclusión</h2></div>
+  <div class="prose">
+    <p>La recursividad es una de las ideas fundamentales de las ciencias computacionales porque permite describir problemas complejos con pocas líneas que reflejan directamente su estructura. Una vez identificados el caso base y la forma de reducir el problema, la solución se escribe casi igual que su definición matemática, como se vio en el factorial y en las Torres de Hanói.</p>
+    <p>Los ejemplos de esta página también muestran sus costos. Cada llamada ocupa memoria en la pila, y una recursión en árbol mal planteada, como Fibonacci ingenuo, repite trabajo hasta volverse exponencial. Analizar la recurrencia permite anticipar ese comportamiento y corregirlo con técnicas como la memorización, la recursión de cola o la conversión a programación dinámica.</p>
+    <p>Más allá de los ejemplos clásicos, la recursividad sostiene algoritmos de ordenamiento, búsqueda en grafos, compiladores, gráficos por computadora y el modelado de formas naturales mediante fractales. Comprenderla, junto con su análisis de complejidad, es indispensable para diseñar algoritmos correctos y eficientes, y para reconocer cuándo conviene una solución iterativa.</p>
+  </div>
+</section>
+
+<!-- 10. REFERENCIAS -->
+<section class="chapter" id="referencias">
+  <div class="chapter-head"><span class="num">10</span><h2>Referencias (formato IEEE)</h2></div>
+  <ol class="refs">
+    <li id="ref1"><span>[1]</span><span>T. H. Cormen, C. E. Leiserson, R. L. Rivest y C. Stein, <em>Introduction to Algorithms</em>, 4th ed. Cambridge, MA, USA: MIT Press, 2022.</span></li>
+    <li id="ref2"><span>[2]</span><span>H. Abelson y G. J. Sussman, <em>Structure and Interpretation of Computer Programs</em>, 2nd ed. Cambridge, MA, USA: MIT Press, 1996. [En línea]. Disponible: <a href="https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book-Z-H-11.html">https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book-Z-H-11.html</a></span></li>
+    <li id="ref3"><span>[3]</span><span>R. L. Graham, D. E. Knuth y O. Patashnik, <em>Concrete Mathematics: A Foundation for Computer Science</em>, 2nd ed. Reading, MA, USA: Addison-Wesley, 1994.</span></li>
+    <li id="ref4"><span>[4]</span><span>R. Sedgewick y K. Wayne, “2.3 Recursion,” en <em>Computer Science: An Interdisciplinary Approach</em>. Boston, MA, USA: Addison-Wesley, 2016. [En línea]. Disponible: <a href="https://introcs.cs.princeton.edu/java/23recursion/">https://introcs.cs.princeton.edu/java/23recursion/</a></span></li>
+    <li id="ref5"><span>[5]</span><span>B. B. Mandelbrot, <em>The Fractal Geometry of Nature</em>. San Francisco, CA, USA: W. H. Freeman, 1982.</span></li>
+    <li id="ref6"><span>[6]</span><span>T. Cormen y D. Balkcom, “Recursion,” <em>Khan Academy: Algorithms</em>. [En línea]. Disponible: <a href="https://www.khanacademy.org/computing/computer-science/algorithms/recursive-algorithms/a/recursion">https://www.khanacademy.org/computing/computer-science/algorithms/recursive-algorithms/a/recursion</a>. [Accedido: 5 oct. 2026].</span></li>
+    <li id="ref7"><span>[7]</span><span>E. Demaine, J. Ku y J. Solomon, “6.006 Introduction to Algorithms,” MIT OpenCourseWare, Massachusetts Institute of Technology, primavera 2020. [En línea]. Disponible: <a href="https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/">https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/</a>. [Accedido: 5 oct. 2026].</span></li>
+    <li id="ref8"><span>[8]</span><span>D. J. Malan, “Lecture 3: Algorithms,” <em>CS50x 2023</em>, Harvard University, 2023. [Video en línea]. Disponible: <a href="https://cs50.harvard.edu/x/2023/weeks/3/">https://cs50.harvard.edu/x/2023/weeks/3/</a>. [Accedido: 5 oct. 2026].</span></li>
+  </ol>
+</section>
+
+<!-- 11. FUENTES CONSULTADAS -->
+<section class="chapter" id="fuentes">
+  <div class="chapter-head"><span class="num">11</span><h2>Fuentes consultadas</h2></div>
+  <dl class="sources">
+    <dt>Libro de texto: Cormen et al., <em>Introduction to Algorithms</em> (2022)</dt>
+    <dd>Divide y vencerás, relaciones de recurrencia, teorema maestro y programación dinámica. Usado en las secciones 1, 2, 4 y 6.</dd>
+    <dt>Libro de texto: Abelson y Sussman, <em>SICP</em> (1996)</dt>
+    <dd>Diferencia entre procedimiento y proceso, recursión lineal, en árbol y de cola; Fibonacci como ejemplo de recursión en árbol. Secciones 2, 3, 4 y 6.</dd>
+    <dt>Libro de texto: Graham, Knuth y Patashnik, <em>Concrete Mathematics</em> (1994)</dt>
+    <dd>Capítulo 1, «Recurrent Problems»: Torres de Hanói y solución de la recurrencia 2ⁿ − 1. Secciones 1, 4, 6 y 7.</dd>
+    <dt>Libro y sitio web: Sedgewick y Wayne, «2.3 Recursion» (Princeton)</dt>
+    <dd>Caso base, convergencia, errores comunes y ejemplos gráficos recursivos. Secciones 1, 3, 5, 7 y 8.</dd>
+    <dt>Libro: Mandelbrot, <em>The Fractal Geometry of Nature</em> (1982)</dt>
+    <dd>Concepto de fractal y autosemejanza en la naturaleza. Secciones 2 y 8.</dd>
+    <dt>Artículo educativo: Khan Academy, «Recursive algorithms»</dt>
+    <dd>Definición introductoria, factorial recursivo y arte recursivo. Secciones 1, 3, 5 y 8.</dd>
+    <dt>Curso universitario: MIT OpenCourseWare 6.006 (2020)</dt>
+    <dd>Análisis de algoritmos recursivos, árboles de recursión y búsqueda binaria. Secciones 2 y 4.</dd>
+    <dt>Video educativo: Harvard CS50x 2023, Lecture 3</dt>
+    <dd>Explicación en video de recursión, pila de llamadas y merge sort. Sección 3.</dd>
+  </dl>
+</section>
+
+</main>
+
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const C = {ink:"#16243A", muted:"#55657A", cobalt:"#2B59D9", mustard:"#E2A72E", sage:"#6E9A7F", line:"#D6DDD6", red:"#C0392B"};
+
+function setupCanvas(canvas){
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.max(1, Math.round(rect.width * dpr));
+  canvas.height = Math.max(1, Math.round(rect.height * dpr));
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return {ctx, w: rect.width, h: rect.height};
+}
+
+/* ---------- Menú desplegable ---------- */
+(function menu(){
+  const btn = $("#menu-btn"), panel = $("#menu-panel");
+  const links = [...panel.querySelectorAll("a")];
+  const setOpen = open => {
+    panel.classList.toggle("open", open);
+    btn.setAttribute("aria-expanded", open);
+    if (open) (panel.querySelector("a.current") || links[0]).focus({preventScroll:true});
+  };
+  btn.addEventListener("click", e => { e.stopPropagation(); setOpen(!panel.classList.contains("open")); });
+  links.forEach(a => a.addEventListener("click", () => setOpen(false)));
+  document.addEventListener("click", e => { if (!panel.contains(e.target)) setOpen(false); });
+  document.addEventListener("keydown", e => {
+    if (!panel.classList.contains("open")) return;
+    if (e.key === "Escape"){ setOpen(false); btn.focus(); }
+    if (e.key === "ArrowDown" || e.key === "ArrowUp"){
+      e.preventDefault();
+      const i = links.indexOf(document.activeElement);
+      const next = e.key === "ArrowDown" ? (i + 1) % links.length : (i - 1 + links.length) % links.length;
+      links[next].focus();
+    }
+  });
+  // Marca la sección visible
+  const map = new Map(links.map(a => [a.getAttribute("href").slice(1), a]));
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting){
+        links.forEach(a => a.classList.remove("current"));
+        const a = map.get(en.target.id); if (a) a.classList.add("current");
+      }
+    });
+  }, {rootMargin:"-40% 0px -55% 0px"});
+  map.forEach((a, id) => { const sec = document.getElementById(id); if (sec) obs.observe(sec); });
+})();
+
+/* ---------- Portada: cuadrados anidados ---------- */
+(function hero(){
+  const svg = $("#hero-art");
+  const polys = [];
+  function nest(p, d){
+    if (d === 0) return;                       // caso base
+    polys.push(p);
+    const t = 0.1;
+    const next = p.map((a, i) => {
+      const b = p[(i + 1) % 4];
+      return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+    });
+    nest(next, d - 1);                         // caso recursivo
+  }
+  nest([[12,12],[388,12],[388,388],[12,388]], 34);
+  polys.forEach((p, i) => {
+    const el = document.createElementNS(NS, "polygon");
+    el.setAttribute("points", p.map(q => q[0].toFixed(2) + "," + q[1].toFixed(2)).join(" "));
+    let cls = "sq";
+    if (i % 7 === 6) cls += " fill";
+    if (i === polys.length - 1) cls += " blue";
+    el.setAttribute("class", cls);
+    el.style.animationDelay = (i * 55) + "ms";
+    svg.appendChild(el);
+  });
+})();
+
+/* ---------- Gráfica de crecimiento ---------- */
+const fibCallsNaive = n => { // llamadas de fib ingenuo = 2F(n+1) - 1
+  let a = 0, b = 1; for (let i = 0; i < n + 1; i++) { [a, b] = [b, a + b]; } return 2 * a - 1;
+};
+const growthSeries = [
+  {name:"Factorial: n llamadas", color:C.sage, f:n => n},
+  {name:"Fibonacci con memorización: 2n − 1", color:C.mustard, f:n => 2*n - 1},
+  {name:"Torres de Hanói: 2ⁿ − 1 movimientos", color:C.ink, f:n => Math.pow(2, n) - 1},
+  {name:"Fibonacci ingenuo: 2F(n+1) − 1", color:C.red, f:fibCallsNaive}
+];
+function drawGrowth(){
+  const canvas = $("#growth-canvas");
+  const {ctx, w, h} = setupCanvas(canvas);
+  const pad = {l:56, r:16, t:16, b:38};
+  const N = 25, maxExp = 8;
+  const X = n => pad.l + (n - 1) / (N - 1) * (w - pad.l - pad.r);
+  const Y = v => h - pad.b - (Math.log10(Math.max(v, 1)) / maxExp) * (h - pad.t - pad.b);
+  ctx.clearRect(0, 0, w, h);
+  ctx.font = "12px 'JetBrains Mono', monospace";
+  ctx.fillStyle = C.muted; ctx.strokeStyle = C.line; ctx.lineWidth = 1;
+  for (let e = 0; e <= maxExp; e++){
+    const y = Y(Math.pow(10, e));
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(w - pad.r, y); ctx.stroke();
+    ctx.textAlign = "right"; ctx.fillText("10" + (e === 0 ? "⁰" : supers(e)), pad.l - 8, y + 4);
+  }
+  ctx.textAlign = "center";
+  for (let n = 1; n <= N; n += (w < 500 ? 4 : 2)) ctx.fillText(n, X(n), h - pad.b + 18);
+  ctx.fillText("n", (w + pad.l) / 2, h - 4);
+  growthSeries.forEach(s => {
+    ctx.strokeStyle = s.color; ctx.lineWidth = 2.5; ctx.beginPath();
+    for (let n = 1; n <= N; n++){ const v = s.f(n); n === 1 ? ctx.moveTo(X(n), Y(v)) : ctx.lineTo(X(n), Y(v)); }
+    ctx.stroke();
+  });
+}
+function supers(n){ const m = "⁰¹²³⁴⁵⁶⁷⁸⁹"; return String(n).split("").map(d => m[+d]).join(""); }
+(function growthLegend(){
+  $("#growth-legend").innerHTML = growthSeries.map(s => `<span><i style="background:${s.color};border-color:${s.color}"></i>${s.name}</span>`).join("");
+  $("#growth-stats").innerHTML =
+    `<span>Con n = 25, Fibonacci ingenuo hace <b>${fibCallsNaive(25).toLocaleString("es-MX")}</b> llamadas</span>` +
+    `<span>Con memorización: <b>49</b></span>`;
+})();
+
+/* ---------- Factorial ---------- */
+let factToken = 0;
+$("#fact-run").addEventListener("click", async () => {
+  const input = $("#fact-n");
+  const n = parseInt(input.value, 10);
+  const log = $("#fact-log");
+  if (isNaN(n) || n < 0 || n > 20){ log.textContent = "Escribe un entero entre 0 y 20."; return; }
+  const token = ++factToken;
+  const stack = $("#fact-stack");
+  stack.querySelectorAll(".frame").forEach(f => f.remove());
+  log.textContent = ""; $("#fact-result").textContent = "";
+  let calls = 0, depth = 0, maxDepth = 0;
+  $("#fact-run").disabled = true; $("#fact-stop").disabled = false;
+  const wait = () => sleep(reduceMotion ? 80 : 1300 - +$("#fact-speed").value);
+  const say = (txt, d) => { log.textContent += "  ".repeat(d) + txt + "\n"; log.scrollTop = log.scrollHeight; };
+
+  async function factorial(k){
+    if (token !== factToken) throw new Error("detenido");
+    calls++; depth++; maxDepth = Math.max(maxDepth, depth);
+    $("#fact-calls").textContent = calls; $("#fact-depth").textContent = maxDepth;
+    const frame = document.createElement("div");
+    frame.className = "frame";
+    frame.innerHTML = `<span>factorial(${k})</span><span class="ret">…</span>`;
+    stack.querySelector(".label").after(frame);
+    say(`→ factorial(${k})`, depth - 1);
+    await wait();
+    let r;
+    if (k <= 1){
+      frame.classList.add("base"); r = 1n;
+      say(`caso base: factorial(${k}) = 1`, depth - 1);
+    } else {
+      say(`necesita ${k} × factorial(${k - 1})`, depth - 1);
+      const sub = await factorial(k - 1);
+      r = BigInt(k) * sub;
+      say(`← factorial(${k}) = ${k} × ${sub} = ${r}`, depth - 1);
+    }
+    frame.classList.add("done");
+    frame.querySelector(".ret").textContent = "= " + r;
+    await wait();
+    if (token !== factToken) throw new Error("detenido");
+    frame.remove(); depth--;
+    return r;
+  }
+  try {
+    const res = await factorial(n);
+    $("#fact-result").textContent = `${n}! = ${res.toLocaleString("es-MX")}`;
+    say("Pila vacía: todas las llamadas regresaron su resultado.", 0);
+  } catch (e) {
+    if (token === factToken) log.textContent += "\nEjecución detenida.";
+  } finally {
+    if (token === factToken){ $("#fact-run").disabled = false; $("#fact-stop").disabled = true; }
+  }
+});
+$("#fact-stop").addEventListener("click", () => {
+  factToken++;
+  $("#fact-log").textContent += "\nEjecución detenida.";
+  $("#fact-run").disabled = false; $("#fact-stop").disabled = true;
+});
+
+/* ---------- Fibonacci ---------- */
+let fibToken = 0;
+function buildFib(n, useMemo){
+  const memo = new Map(); const seen = new Map();
+  let id = 0; const events = []; let dups = 0;
+  function rec(k, depth, parent){
+    const node = {id:id++, k, depth, parent, children:[], hit:false, dup:false};
+    events.push(["enter", node]);
+    if (useMemo && memo.has(k)){ node.hit = true; node.val = memo.get(k); }
+    else {
+      if (seen.has(k)){ node.dup = true; dups++; }
+      seen.set(k, true);
+      if (k < 2) node.val = k;
+      else {
+        const a = rec(k - 1, depth + 1, node);
+        const b = rec(k - 2, depth + 1, node);
+        node.children = [a, b];
+        node.val = a.val + b.val;
+      }
+      if (useMemo) memo.set(k, node.val);
+    }
+    events.push(["exit", node]);
+    return node;
+  }
+  const root = rec(n, 0, null);
+  return {root, events, count:id, dups};
+}
+function layoutFib(root){
+  let leaf = 0, maxDepth = 0;
+  (function place(node){
+    maxDepth = Math.max(maxDepth, node.depth);
+    if (!node.children.length){ node.x = leaf++; }
+    else { node.children.forEach(place); node.x = (node.children[0].x + node.children[node.children.length - 1].x) / 2; }
+  })(root);
+  return {leaves:leaf, maxDepth};
+}
+function renderFib(instant){
+  const token = ++fibToken;
+  let n = parseInt($("#fib-n").value, 10);
+  if (isNaN(n)) n = 5;
+  n = Math.min(8, Math.max(1, n)); $("#fib-n").value = n;
+  const useMemo = $("#fib-memo").checked;
+  const {root, events, count, dups} = buildFib(n, useMemo);
+  const {leaves, maxDepth} = layoutFib(root);
+  const W = 58, H = 64, nodeW = 46, nodeH = 30;
+  const width = Math.max(leaves * W, 300), height = (maxDepth + 1) * H + 20;
+  const svg = $("#fib-svg");
+  svg.innerHTML = "";
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.style.minWidth = Math.min(width, 1400) + "px";
+  svg.style.maxWidth = Math.max(width * 1.35, 420) + "px";
+  const gEdges = document.createElementNS(NS, "g"), gNodes = document.createElementNS(NS, "g");
+  svg.append(gEdges, gNodes);
+  const cx = node => node.x * W + W / 2, cy = node => node.depth * H + 24;
+  const els = new Map();
+  (function make(node){
+    const g = document.createElementNS(NS, "g");
+    g.setAttribute("class", "fnode");
+    g.setAttribute("transform", `translate(${cx(node)},${cy(node)})`);
+    g.innerHTML = `<rect x="${-nodeW/2}" y="${-nodeH/2}" width="${nodeW}" height="${nodeH}" rx="4"></rect>
+      <text y="-1">F(${node.k})</text><text class="val" y="11"></text>`;
+    let edge = null;
+    if (node.parent){
+      edge = document.createElementNS(NS, "line");
+      edge.setAttribute("class", "fedge");
+      edge.setAttribute("x1", cx(node.parent)); edge.setAttribute("y1", cy(node.parent) + nodeH / 2);
+      edge.setAttribute("x2", cx(node)); edge.setAttribute("y2", cy(node) - nodeH / 2);
+      gEdges.appendChild(edge);
+    }
+    gNodes.appendChild(g);
+    els.set(node.id, {g, edge});
+    if (!instant){ g.style.visibility = "hidden"; if (edge) edge.style.visibility = "hidden"; }
+    node.children.forEach(make);
+  })(root);
+
+  const callsEl = $("#fib-calls");
+  $("#fib-result").textContent = "–"; $("#fib-dups").textContent = useMemo ? "0" : "…"; callsEl.textContent = 0;
+
+  function applyEnter(node){
+    const {g, edge} = els.get(node.id);
+    g.style.visibility = "visible"; if (edge) edge.style.visibility = "visible";
+    g.classList.add("active");
+    if (node.dup) g.classList.add("dup");
+  }
+  function applyExit(node){
+    const {g} = els.get(node.id);
+    g.classList.remove("active");
+    g.classList.add(node.hit ? "hit" : "done");
+    g.querySelector(".val").textContent = "= " + node.val;
+  }
+  function finish(){
+    $("#fib-result").textContent = `F(${n}) = ${root.val}`;
+    callsEl.textContent = count;
+    $("#fib-dups").textContent = dups;
+  }
+  if (instant){
+    events.forEach(([t, node]) => t === "enter" ? applyEnter(node) : applyExit(node));
+    finish(); return;
+  }
+  (async () => {
+    let calls = 0;
+    const delay = reduceMotion ? 40 : Math.max(50, 280 - count * 3);
+    for (const [t, node] of events){
+      if (token !== fibToken) return;
+      if (t === "enter"){ applyEnter(node); callsEl.textContent = ++calls; }
+      else applyExit(node);
+      await sleep(delay);
+    }
+    if (token === fibToken) finish();
+  })();
+}
+$("#fib-run").addEventListener("click", () => renderFib(false));
+$("#fib-instant").addEventListener("click", () => renderFib(true));
+$("#fib-memo").addEventListener("change", () => renderFib(true));
+
+/* ---------- Torres de Hanói ---------- */
+const H = {n:3, pegs:[[],[],[]], moves:[], i:0, playing:false, busy:false, token:0, flying:null};
+function hanoiMoves(n, from, to, via, out){
+  if (n === 0) return;                       // caso base
+  hanoiMoves(n - 1, from, via, to, out);
+  out.push([n, from, to]);
+  hanoiMoves(n - 1, via, to, from, out);
+}
+const discColors = ["#2B59D9","#E2A72E","#6E9A7F","#C0392B","#7A5CC2","#1F8A9E","#D9732B","#16243A"];
+function hanoiReset(){
+  H.token++; H.playing = false; H.busy = false; H.flying = null;
+  H.n = parseInt($("#hanoi-n").value, 10);
+  H.pegs = [[], [], []];
+  for (let d = H.n; d >= 1; d--) H.pegs[0].push(d);
+  H.moves = []; hanoiMoves(H.n, 0, 2, 1, H.moves);
+  H.i = 0;
+  $("#hanoi-play").textContent = "Reproducir";
+  $("#hanoi-count").textContent = 0;
+  $("#hanoi-total").textContent = H.moves.length;
+  $("#hanoi-exp").textContent = H.n;
+  $("#hanoi-formula").textContent = Math.pow(2, H.n) - 1;
+  $("#hanoi-last").textContent = "Torre completa en la varilla A. Objetivo: llevarla a C.";
+  drawHanoi();
+}
+function hanoiGeom(){
+  const canvas = $("#hanoi-canvas");
+  const r = canvas.getBoundingClientRect();
+  const w = r.width, h = r.height;
+  const baseY = h - 30, pegH = h - 80;
+  const pegX = [w / 6, w / 2, 5 * w / 6];
+  const maxW = Math.min(w / 3 - 16, 220), minW = 34;
+  const discH = Math.min(24, (pegH - 20) / 9);
+  const widthOf = d => minW + (maxW - minW) * (d - 1) / Math.max(1, 7);
+  return {w, h, baseY, pegH, pegX, discH, widthOf, topY: baseY - pegH - 24};
+}
+function drawDisc(ctx, g, d, x, y){
+  const dw = g.widthOf(d);
+  ctx.fillStyle = discColors[(d - 1) % discColors.length];
+  ctx.fillRect(x - dw / 2, y - g.discH, dw, g.discH - 2);
+  ctx.fillStyle = "#fff"; ctx.font = "600 12px 'Bricolage Grotesque', sans-serif"; ctx.textAlign = "center";
+  if (g.discH > 14) ctx.fillText(d, x, y - g.discH / 2 + 3);
+}
+function drawHanoi(){
+  const {ctx} = setupCanvas($("#hanoi-canvas"));
+  const g = hanoiGeom();
+  ctx.clearRect(0, 0, g.w, g.h);
+  ctx.fillStyle = C.ink; ctx.fillRect(10, g.baseY, g.w - 20, 6);
+  ["A","B","C"].forEach((lbl, p) => {
+    ctx.fillStyle = C.ink; ctx.fillRect(g.pegX[p] - 3, g.baseY - g.pegH, 6, g.pegH);
+    ctx.font = "600 14px 'Bricolage Grotesque', sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(lbl, g.pegX[p], g.baseY + 22);
+    H.pegs[p].forEach((d, idx) => drawDisc(ctx, g, d, g.pegX[p], g.baseY - idx * g.discH));
+  });
+  if (H.flying) drawDisc(ctx, g, H.flying.d, H.flying.x, H.flying.y);
+}
+function animateMove(){
+  return new Promise(resolve => {
+    if (H.i >= H.moves.length){ resolve(false); return; }
+    const token = H.token;
+    const [d, from, to] = H.moves[H.i];
+    const g = hanoiGeom();
+    H.pegs[from].pop();
+    const startY = g.baseY - H.pegs[from].length * g.discH;
+    const endY = g.baseY - H.pegs[to].length * g.discH;
+    const x0 = g.pegX[from], x1 = g.pegX[to], top = g.topY + g.discH;
+    const speed = +$("#hanoi-speed").value;
+    const dur = reduceMotion ? 1 : 1500 / speed;
+    const t0 = performance.now();
+    function frame(now){
+      if (token !== H.token){ resolve(false); return; }
+      const t = Math.min(1, (now - t0) / dur);
+      const seg = t * 3;
+      let x, y;
+      if (seg < 1){ x = x0; y = startY + (top - startY) * seg; }
+      else if (seg < 2){ x = x0 + (x1 - x0) * (seg - 1); y = top; }
+      else { x = x1; y = top + (endY - top) * (seg - 2); }
+      H.flying = {d, x, y};
+      drawHanoi();
+      if (t < 1) requestAnimationFrame(frame);
+      else {
+        H.flying = null; H.pegs[to].push(d); H.i++;
+        $("#hanoi-count").textContent = H.i;
+        const names = ["A","B","C"];
+        $("#hanoi-last").textContent = `Movimiento ${H.i}: disco ${d} de ${names[from]} a ${names[to]}` +
+          (H.i === H.moves.length ? ". Torre completa en C." : "");
+        drawHanoi(); resolve(true);
+      }
+    }
+    requestAnimationFrame(frame);
+  });
+}
+async function hanoiPlay(){
+  if (H.busy) return;
+  if (H.i >= H.moves.length) hanoiReset();
+  H.playing = true; H.busy = true;
+  $("#hanoi-play").textContent = "Pausar";
+  const token = H.token;
+  while (H.playing && token === H.token && H.i < H.moves.length){
+    await animateMove();
+    if (!reduceMotion) await sleep(1000 / (+$("#hanoi-speed").value * 3));
+  }
+  if (token === H.token){ H.playing = false; H.busy = false; $("#hanoi-play").textContent = "Reproducir"; }
+}
+$("#hanoi-play").addEventListener("click", () => { if (H.playing) H.playing = false; else hanoiPlay(); });
+$("#hanoi-step").addEventListener("click", async () => {
+  if (H.busy) return;
+  H.busy = true; const token = H.token;
+  await animateMove();
+  if (token === H.token) H.busy = false;
+});
+$("#hanoi-reset").addEventListener("click", hanoiReset);
+$("#hanoi-n").addEventListener("change", hanoiReset);
+
+/* ---------- Fractales ---------- */
+let frToken = 0;
+function drawFractal(depthOverride){
+  const type = $("#fr-type").value;
+  const depth = depthOverride ?? +$("#fr-depth").value;
+  const angle = +$("#fr-angle").value * Math.PI / 180;
+  const {ctx, w, h} = setupCanvas($("#fractal-canvas"));
+  ctx.clearRect(0, 0, w, h);
+  let count = 0, calls = 0;
+  ctx.lineCap = "round";
+
+  if (type === "tree"){
+    const maxD = Math.max(depth, 1);
+    function branch(x, y, len, ang, d){
+      calls++;
+      if (d === 0) return;                         // caso base
+      const x2 = x + len * Math.cos(ang), y2 = y - len * Math.sin(ang);
+      const t = d / maxD;
+      ctx.strokeStyle = t > 0.35 ? C.ink : (t > 0.15 ? C.sage : C.mustard);
+      ctx.lineWidth = Math.max(0.7, d * 1.1);
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x2, y2); ctx.stroke();
+      count++;
+      branch(x2, y2, len * 0.72, ang + angle, d - 1);
+      branch(x2, y2, len * 0.72, ang - angle, d - 1);
+    }
+    branch(w / 2, h - 12, Math.min(h * 0.28, w * 0.22), Math.PI / 2, depth);
+  }
+  else if (type === "sierpinski"){
+    ctx.fillStyle = C.cobalt;
+    function tri(a, b, c, d){
+      calls++;
+      if (d === 0){                                 // caso base
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.lineTo(c[0], c[1]); ctx.closePath(); ctx.fill();
+        count++; return;
+      }
+      const ab = [(a[0]+b[0])/2, (a[1]+b[1])/2], bc = [(b[0]+c[0])/2, (b[1]+c[1])/2], ca = [(c[0]+a[0])/2, (c[1]+a[1])/2];
+      tri(a, ab, ca, d - 1); tri(ab, b, bc, d - 1); tri(ca, bc, c, d - 1);
+    }
+    const side = Math.min(w - 40, (h - 30) / 0.866);
+    const top = [w / 2, (h - side * 0.866) / 2];
+    tri(top, [w / 2 + side / 2, top[1] + side * 0.866], [w / 2 - side / 2, top[1] + side * 0.866], Math.min(depth, 9));
+  }
+  else {
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    function koch(a, b, d){
+      calls++;
+      if (d === 0){ ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); count++; return; }   // caso base
+      const dx = (b[0] - a[0]) / 3, dy = (b[1] - a[1]) / 3;
+      const p1 = [a[0] + dx, a[1] + dy], p3 = [a[0] + 2 * dx, a[1] + 2 * dy];
+      const p2 = [p1[0] + dx * Math.cos(-Math.PI/3) - dy * Math.sin(-Math.PI/3),
+                  p1[1] + dx * Math.sin(-Math.PI/3) + dy * Math.cos(-Math.PI/3)];
+      koch(a, p1, d - 1); koch(p1, p2, d - 1); koch(p2, p3, d - 1); koch(p3, b, d - 1);
+    }
+    const cx = w / 2, cy = h / 2;
+    const r = Math.min((h - 30) / 2, (w - 40) / Math.sqrt(3));
+    const pts = [0, 1, 2].map(i => [cx + r * Math.cos(-Math.PI/2 + i * 2 * Math.PI / 3), cy + r * Math.sin(-Math.PI/2 + i * 2 * Math.PI / 3)]);
+    const d = Math.min(depth, 6);
+    koch(pts[0], pts[1], d); koch(pts[1], pts[2], d); koch(pts[2], pts[0], d);
+    ctx.stroke();
+  }
+  $("#fr-count").textContent = count.toLocaleString("es-MX");
+  $("#fr-calls").textContent = calls.toLocaleString("es-MX");
+}
+function syncFractalControls(){
+  const type = $("#fr-type").value;
+  const depthInput = $("#fr-depth");
+  const max = type === "tree" ? 11 : (type === "sierpinski" ? 9 : 6);
+  depthInput.max = max;
+  if (+depthInput.value > max) depthInput.value = max;
+  $("#fr-depth-val").textContent = depthInput.value;
+  $("#fr-angle-val").textContent = $("#fr-angle").value + "°";
+  $("#fr-angle-wrap").style.display = type === "tree" ? "flex" : "none";
+}
+["#fr-type", "#fr-depth", "#fr-angle"].forEach(sel => $(sel).addEventListener("input", () => { frToken++; syncFractalControls(); drawFractal(); }));
+$("#fr-grow").addEventListener("click", async () => {
+  const token = ++frToken;
+  const target = +$("#fr-depth").value;
+  for (let d = 0; d <= target; d++){
+    if (token !== frToken) return;
+    $("#fr-depth-val").textContent = d;
+    drawFractal(d);
+    await sleep(reduceMotion ? 0 : 550);
+  }
+  $("#fr-depth-val").textContent = target;
+});
+
+/* ---------- Inicio y redimensionado ---------- */
+function redrawAll(){ drawGrowth(); drawHanoi(); drawFractal(); }
+let resizeTimer;
+window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(redrawAll, 150); });
+syncFractalControls();
+hanoiReset();
+renderFib(true);
+redrawAll();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(redrawAll);
+})();
+</script>
+</body>
+</html>
